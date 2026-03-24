@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 int callback(void *NotUsed, int argc, char **argv, char **azColName);
-void Create_Tables(sqlite3 *db);
+void Init_DB(sqlite3 *db);
 void Reports_Select(sqlite3 *db);
 void Insert_Flower(sqlite3 *db, const char* name, const char* sort, double price);
 void Update_Flower_Price(sqlite3 *db, int id, double new_price);

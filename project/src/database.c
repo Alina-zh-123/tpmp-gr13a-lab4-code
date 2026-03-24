@@ -18,7 +18,6 @@ void Show_Table(sqlite3 *db, const char* table_name) {
 void Create_Tables(sqlite3 *db) {
     char *err_msg = 0;
     sqlite3_exec(db, "PRAGMA foreign_keys = ON;", 0, 0, 0);
-
     const char *sql = 
         "CREATE TABLE IF NOT EXISTS flowers("
         "flower_id INTEGER PRIMARY KEY, name TEXT NOT NULL, sort TEXT NOT NULL, price NUMERIC NOT NULL);"
@@ -35,7 +34,6 @@ void Create_Tables(sqlite3 *db) {
         "composition_id INTEGER NOT NULL, count INTEGER NOT NULL, customer_id INTEGER NOT NULL, total_price NUMERIC, "
         "FOREIGN KEY(composition_id) REFERENCES compositions(composition_id), "
         "FOREIGN KEY(customer_id) REFERENCES users(user_id));";
-
     if (sqlite3_exec(db, sql, 0, 0, &err_msg) == SQLITE_OK) {
         printf("база данных готова связи активны\n");
     }
@@ -43,16 +41,13 @@ void Create_Tables(sqlite3 *db) {
 
 void Reports_Select(sqlite3 *db) {
     printf("сумма за март\n");
-    sqlite3_exec(db, "SELECT SUM(total_price) FROM orders WHERE order_date BETWEEN '2026-03-01' AND '2026-03-31'", callback, 0, 0);
-
+    sqlite3_exec(db, "SELECT SUM(total_price) AS выручка FROM orders WHERE order_date BETWEEN '2026-03-01' AND '2026-03-31'", callback, 0, 0);
     printf("популярная композиция\n");
-    sqlite3_exec(db, "SELECT * FROM compositions WHERE composition_id = (SELECT composition_id FROM orders GROUP BY composition_id ORDER BY SUM(count) DESC LIMIT 1)", callback, 0, 0);
-
-    printf("срочность заказов в днях\n");
-    sqlite3_exec(db, "SELECT (julianday(delivery_date) - julianday(order_date)) as days, COUNT(*) FROM orders GROUP BY days", callback, 0, 0);
-
+    sqlite3_exec(db, "SELECT name AS название FROM compositions WHERE composition_id = (SELECT composition_id FROM orders GROUP BY composition_id ORDER BY SUM(count) DESC LIMIT 1)", callback, 0, 0);
+    printf("срочность заказов\n");
+    sqlite3_exec(db, "SELECT (julianday(delivery_date) - julianday(order_date)) AS дни, COUNT(*) AS количество FROM orders GROUP BY дни", callback, 0, 0);
     printf("расход цветов по сортам\n");
-    sqlite3_exec(db, "SELECT f.name, f.sort, SUM(ci.quantity * o.count) FROM orders o "
+    sqlite3_exec(db, "SELECT f.name AS цветок, f.sort AS сорт, SUM(ci.quantity * o.count) AS штук FROM orders o "
                      "JOIN composition_items ci ON o.composition_id = ci.composition_id "
                      "JOIN flowers f ON ci.flower_id = f.flower_id GROUP BY f.name, f.sort", callback, 0, 0);
 }
@@ -87,7 +82,6 @@ void Safe_Price_Update(sqlite3 *db, int id, double new_p) {
     sqlite3_bind_int(res, 1, id);
     if (sqlite3_step(res) == SQLITE_ROW) old_p = sqlite3_column_double(res, 0);
     sqlite3_finalize(res);
-
     if (old_p > 0 && new_p > old_p * 1.10) {
         printf("отказ рост цены более десяти процентов запрещен\n");
     } else {
@@ -103,7 +97,6 @@ void Add_Order_Calc(sqlite3 *db, const char* d1, const char* d2, int c_id, int c
                       "WHEN (julianday(?) - julianday(?)) <= 2 THEN 1.15 ELSE 1.0 END "
                       "FROM composition_items ci JOIN flowers f ON ci.flower_id = f.flower_id "
                       "WHERE ci.composition_id = ?";
-    
     sqlite3_prepare_v2(db, sql, -1, &res, 0);
     sqlite3_bind_text(res, 1, d1, -1, SQLITE_STATIC);
     sqlite3_bind_text(res, 2, d2, -1, SQLITE_STATIC);

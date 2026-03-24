@@ -1,4 +1,4 @@
-name: C Project Build
+name: Build, Test and Coverage
 
 on:
   push:
@@ -7,40 +7,46 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y build-essential
-
-      - name: Build project
-        working-directory: ./project
-        run: make
-
-      - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: green_app
-          path: project/bin/green_app
-
-      - name: Build with Coverage
+      - name: Install dependencies
         run: |
-          gcc -Iproject/includes project/src/database.c project/src/tests.c -o test_runner -lsqlite3 -fprofile-arcs -ftest-coverage
-      
-      - name: Run Tests
+          sudo apt-get update
+          sudo apt-get install -y build-essential lcov gcovr sqlite3 libsqlite3-dev
+
+      - name: Build project with coverage flags
+        working-directory: ./project
+        run: |
+          make clean
+          make CFLAGS="-Wall -Wextra -Iincludes -fprofile-arcs -ftest-coverage" \
+               LDFLAGS="-lsqlite3 -lgcov"
+
+      - name: Build tests
+        working-directory: ./project
+        run: |
+          gcc -Iincludes src/database.c tests.c \
+              -o test_runner \
+              -lsqlite3 -fprofile-arcs -ftest-coverage -lgcov
+
+      - name: Run tests
+        working-directory: ./project
         run: ./test_runner
 
-      - name: Generate Coverage Report
+      - name: Generate coverage report
+        working-directory: ./project
         run: |
-          gcov project/src/database.c
-          
-      - name: Upload to Codecov
+          lcov --capture --directory . --output-file coverage.info
+          lcov --remove coverage.info "/usr/*" --output-file coverage.info
+          lcov --list coverage.info
+
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./database.c.gcov
+          files: project/coverage.info
           fail_ci_if_error: true

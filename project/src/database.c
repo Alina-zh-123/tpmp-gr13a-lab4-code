@@ -1,4 +1,4 @@
-#include "../includes/db.h""
+#include "../includes/db.h"
 
 int callback(void *NotUsed, int argc, char **argv, char **azColName) {
     for (int i = 0; i < argc; i++) {
@@ -10,7 +10,7 @@ int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 
 void Create_Tables(sqlite3 *db) {
     char *err_msg = 0;
-    char *sql = 
+    const char *sql = 
         "CREATE TABLE IF NOT EXISTS flowers("
         "flower_id INTEGER PRIMARY KEY, name TEXT NOT NULL, sort TEXT NOT NULL, price NUMERIC NOT NULL);"
         
@@ -18,8 +18,7 @@ void Create_Tables(sqlite3 *db) {
         "composition_id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
         
         "CREATE TABLE IF NOT EXISTS composition_items("
-        "item_id INTEGER PRIMARY KEY, composition_id INTEGER NOT NULL, flower_id INTEGER NOT NULL, quantity 
-INTEGER NOT NULL, "
+        "item_id INTEGER PRIMARY KEY, composition_id INTEGER NOT NULL, flower_id INTEGER NOT NULL, quantity INTEGER NOT NULL, "
         "FOREIGN KEY(composition_id) REFERENCES compositions(composition_id), "
         "FOREIGN KEY(flower_id) REFERENCES flowers(flower_id));"
         
@@ -28,8 +27,7 @@ INTEGER NOT NULL, "
         
         "CREATE TABLE IF NOT EXISTS orders("
         "order_id INTEGER PRIMARY KEY, order_date DATE NOT NULL, delivery_date DATE NOT NULL, "
-        "composition_id INTEGER NOT NULL, count INTEGER NOT NULL, customer_id INTEGER NOT NULL, total_price 
-NUMERIC, "
+        "composition_id INTEGER NOT NULL, count INTEGER NOT NULL, customer_id INTEGER NOT NULL, total_price NUMERIC, "
         "FOREIGN KEY(composition_id) REFERENCES compositions(composition_id), "
         "FOREIGN KEY(customer_id) REFERENCES users(user_id));";
 
@@ -44,26 +42,21 @@ NUMERIC, "
 
 void Reports_Select(sqlite3 *db) {
     printf(" Сумма денег за март: \n");
-    sqlite3_exec(db, "SELECT SUM(total_price) FROM orders WHERE order_date BETWEEN '2026-03-01' AND 
-'2026-03-31'", callback, 0, 0);
+    sqlite3_exec(db, "SELECT SUM(total_price) FROM orders WHERE order_date BETWEEN '2026-03-01' AND '2026-03-31'", callback, 0, 0);
 
     printf("Популярная композиция: \n");
-    sqlite3_exec(db, "SELECT * FROM compositions WHERE composition_id = (SELECT composition_id FROM orders 
-GROUP BY composition_id ORDER BY SUM(count) DESC LIMIT 1)", callback, 0, 0);
+    sqlite3_exec(db, "SELECT * FROM compositions WHERE composition_id = (SELECT composition_id FROM orders GROUP BY composition_id ORDER BY SUM(count) DESC LIMIT 1)", callback, 0, 0);
 
     printf("Количество заказов по срочности: \n");
-    sqlite3_exec(db, "SELECT (julianday(delivery_date) - julianday(order_date)) as days_delay, COUNT(*) 
-FROM orders GROUP BY days_delay", callback, 0, 0);
+    sqlite3_exec(db, "SELECT (julianday(delivery_date) - julianday(order_date)) as days_delay, COUNT(*) FROM orders GROUP BY days_delay", callback, 0, 0);
 
     printf("Использовано цветов по видам и сортам: \n");
     sqlite3_exec(db, "SELECT f.name, f.sort, SUM(ci.quantity * o.count) FROM orders o "
                      "JOIN composition_items ci ON o.composition_id = ci.composition_id "
-                     "JOIN flowers f ON ci.flower_id = f.flower_id GROUP BY f.name, f.sort", callback, 0, 
-0);
+                     "JOIN flowers f ON ci.flower_id = f.flower_id GROUP BY f.name, f.sort", callback, 0, 0);
 
     printf("Статистика по композициям: \n");
-    sqlite3_exec(db, "SELECT c.name, SUM(o.count), SUM(o.total_price) FROM orders o JOIN compositions c ON 
-o.composition_id = c.composition_id GROUP BY c.name", callback, 0, 0);
+    sqlite3_exec(db, "SELECT c.name, SUM(o.count), SUM(o.total_price) FROM orders o JOIN compositions c ON o.composition_id = c.composition_id GROUP BY c.name", callback, 0, 0);
 }
 
 void Insert_Flower(sqlite3 *db, const char* name, const char* sort, double price) {
@@ -115,8 +108,7 @@ void Safe_Price_Update(sqlite3 *db, int id, double new_p) {
 
 void Add_Order_Calc(sqlite3 *db, const char* d1, const char* d2, int c_id, int cnt, int cust) {
     sqlite3_stmt *res;
-    const char *sql = "INSERT INTO orders (order_date, delivery_date, composition_id, count, customer_id, 
-total_price) "
+    const char *sql = "INSERT INTO orders (order_date, delivery_date, composition_id, count, customer_id, total_price) "
                       "SELECT ?, ?, ?, ?, ?, (SUM(f.price * ci.quantity) * ?) * "
                       "CASE WHEN (julianday(?) - julianday(?)) <= 1 THEN 1.25 "
                       "WHEN (julianday(?) - julianday(?)) <= 2 THEN 1.15 ELSE 1.0 END "
@@ -155,6 +147,3 @@ void Search_By_Date(sqlite3 *db, const char* date) {
     } 
     sqlite3_finalize(res); 
 }
-
-
-

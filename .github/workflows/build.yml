@@ -41,7 +41,7 @@ jobs:
         working-directory: ./project
         run: |
           lcov --capture --directory . --output-file coverage.info
-          lcov --remove coverage.info "/usr/*" --output-file coverage.info
+          lcov --remove coverage.info "/usr/*" --output-file coverage.info --ignore-errors unused
           lcov --list coverage.info
 
       - name: Upload coverage to Codecov

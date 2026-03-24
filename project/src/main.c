@@ -21,7 +21,7 @@ int main(void) {
     Safe_Price_Update(db, 1, 5.8);
     Safe_Price_Update(db, 1, 10.0);
 
-    Delete_Order_By_Id(2);
+    Delete_Order_By_Id(db, 2);
 
     sqlite3_close(db);
     return 0;

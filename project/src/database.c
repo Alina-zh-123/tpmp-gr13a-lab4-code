@@ -139,3 +139,23 @@ void Delete_Order_By_Id(sqlite3 *db, int id) {
     printf("заказ удален\n");
     Show_Table(db, "orders");
 }
+
+int Get_Flower_Price(sqlite3 *db, int id, double *price) {
+    sqlite3_stmt *res;
+
+    const char *sql = "SELECT price FROM flowers WHERE flower_id = ?;";
+    if (sqlite3_prepare_v2(db, sql, -1, &res, 0) != SQLITE_OK)
+        return SQLITE_ERROR;
+
+    sqlite3_bind_int(res, 1, id);
+
+    int step = sqlite3_step(res);
+    if (step == SQLITE_ROW) {
+        *price = sqlite3_column_double(res, 0);
+        sqlite3_finalize(res);
+        return SQLITE_OK;
+    }
+
+    sqlite3_finalize(res);
+    return SQLITE_ERROR;
+}

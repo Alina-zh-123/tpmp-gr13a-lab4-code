@@ -14,9 +14,3 @@ void test_db_open_fail() {
 
     sqlite3_close(db);
 }
-
-int main() {
-    test_db_open_fail();
-    printf("\nВсе тесты пройдены успешно!\n");
-    return 0;
-}

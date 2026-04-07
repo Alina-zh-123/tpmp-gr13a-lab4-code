@@ -36,8 +36,11 @@ void test_database_logic() {
     sqlite3_close(db);
 }
 
+void test_db_open_fail();
+
 int main() {
     test_database_logic();
+    test_db_open_fail();
     printf("\nВсе тесты пройдены успешно!\n");
     return 0;
 }

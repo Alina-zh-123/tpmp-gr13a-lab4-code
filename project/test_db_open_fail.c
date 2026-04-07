@@ -10,7 +10,7 @@ void test_db_open_fail() {
     rc = sqlite3_open("definitely_not_exists.db", &db);
 
     assert(rc != SQLITE_OK);
-    printf("Test 0: sqlite3_open error\n");
+    printf("Test DB fail: sqlite3_open error\n");
 
     sqlite3_close(db);
 }

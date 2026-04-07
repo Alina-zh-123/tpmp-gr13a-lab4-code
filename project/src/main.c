@@ -4,6 +4,7 @@ int main(void) {
     sqlite3 *db;
     
     if (sqlite3_open("green.db", &db) != SQLITE_OK) {
+        fprintf(stderr, "Не удалось открыть базу данных\n");
         return 1;
     }
 

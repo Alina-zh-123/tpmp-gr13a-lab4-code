@@ -6,7 +6,7 @@
 
 ## Разделы GitHub Pages:
 
-[Глоссарий](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/glossary.md)
+[Глоссарий](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/glossary.md)
 
 [Функциональные требования](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/functionalRequirements.md)
 

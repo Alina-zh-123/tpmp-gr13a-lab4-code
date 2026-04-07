@@ -8,7 +8,7 @@
 
 [Глоссарий](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/glossary.md)
 
-[Функциональные требования](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/functionalRequirements.md))
+[Функциональные требования](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/functionalRequirements.md)
 
 [Спецификация проекта](https://github.com/Alina-zh-123/tpmp-gr13a-lab4-code/blob/main/docs/pages/specification.md)
 
